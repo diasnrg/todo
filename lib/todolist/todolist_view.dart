@@ -35,7 +35,8 @@ class TodoListView extends StatelessWidget {
 
       final todos = state.todos;
       if (todos.isEmpty) {
-        return const SliverToBoxAdapter(child: Text('empty list'));
+        return const SliverToBoxAdapter(
+            child: Center(child: Text('empty list')));
       }
 
       return SliverList(
