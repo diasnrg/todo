@@ -12,7 +12,7 @@ class App extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('todo'),
+          title: const Text('Todo'),
         ),
         body: const TodoListPage(),
       ),

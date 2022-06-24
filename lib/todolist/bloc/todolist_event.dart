@@ -1,4 +1,4 @@
-import 'package:todo/models.dart';
+part of 'todolist_bloc.dart';
 
 abstract class TodoListEvent {}
 
@@ -10,8 +10,8 @@ class TodoListItemCreated extends TodoListEvent {
   final Todo item;
 }
 
-class TodoListItemDeleted extends TodoListEvent {
-  TodoListItemDeleted(this.item);
+class TodoListItemRemoved extends TodoListEvent {
+  TodoListItemRemoved(this.item);
 
   final Todo item;
 }

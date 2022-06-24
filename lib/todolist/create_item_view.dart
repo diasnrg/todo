@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:todo/models.dart';
+import 'package:todo/models/models.dart';
 import 'package:todo/todolist/bloc/todolist_bloc.dart';
-import 'package:todo/todolist/bloc/todolist_event.dart';
 
 class CreateTodoItemView extends StatefulWidget {
   const CreateTodoItemView({super.key});

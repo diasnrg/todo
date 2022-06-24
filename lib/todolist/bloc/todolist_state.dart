@@ -1,16 +1,23 @@
-import 'package:todo/models.dart';
+part of 'todolist_bloc.dart';
 
 enum TodoListStatus {
-  initialized,
+  initial,
   loading,
   success,
   failure,
 }
 
+extension TodoListStatusX on TodoListStatus {
+  bool get isInitial => this == TodoListStatus.initial;
+  bool get isLoading => this == TodoListStatus.loading;
+  bool get isSuccess => this == TodoListStatus.success;
+  bool get isFailure => this == TodoListStatus.failure;
+}
+
 class TodoListState {
   const TodoListState({
     this.todos = const [],
-    this.status = TodoListStatus.initialized,
+    this.status = TodoListStatus.initial,
   });
 
   final List<Todo> todos;

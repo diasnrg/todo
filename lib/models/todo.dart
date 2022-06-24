@@ -1,5 +1,9 @@
 import 'package:uuid/uuid.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'todo.g.dart';
+
+@JsonSerializable(fieldRename: FieldRename.snake)
 class Todo {
   Todo({
     String? id,
@@ -11,6 +15,8 @@ class Todo {
   final String title;
   final bool isCompleted;
 
+  factory Todo.fromJson(Map<String, dynamic> json) => _$TodoFromJson(json);
+
   Todo copyWith({
     String? title,
     bool? isCompleted,
@@ -21,4 +27,6 @@ class Todo {
       isCompleted: isCompleted ?? this.isCompleted,
     );
   }
+
+  Map<String, dynamic> toJson() => _$TodoToJson(this);
 }

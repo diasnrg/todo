@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:todo/models.dart';
-import 'package:todo/todolist/bloc/todolist_event.dart';
-import 'package:todo/todolist/bloc/todolist_state.dart';
+import 'package:todo/models/models.dart';
 import 'package:todo/todolist/create_item_view.dart';
 import 'bloc/todolist_bloc.dart';
 
@@ -12,7 +10,7 @@ class TodoListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => TodoListBloc(),
+      create: (_) => TodoListBloc()..add(TodoListInitialized()),
       child: const CustomScrollView(
         slivers: [
           SliverToBoxAdapter(child: CreateTodoItemView()),
@@ -29,8 +27,11 @@ class TodoListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TodoListBloc, TodoListState>(builder: (context, state) {
-      if (state.status == TodoListStatus.failure) {
+      if (state.status.isFailure) {
         return const SliverToBoxAdapter(child: Text('error occured'));
+      }
+      if (state.status.isLoading) {
+        return const SliverToBoxAdapter(child: CircularProgressIndicator());
       }
 
       final todos = state.todos;
@@ -70,7 +71,7 @@ class TodoItemView extends StatelessWidget {
               : null),
       trailing: InkWell(
           onTap: () {
-            context.read<TodoListBloc>().add(TodoListItemDeleted(item));
+            context.read<TodoListBloc>().add(TodoListItemRemoved(item));
           },
           child: const Icon(Icons.delete)),
     );
