@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo/models/models.dart';
 import 'package:todo/repository.dart';
@@ -41,14 +42,14 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
   ) async {
     try {
       await _repository.createTodoItem(event.item);
+
+      emit(state.copyWith(
+        todos: [...state.todos, event.item],
+        status: TodoListStatus.success,
+      ));
     } catch (e) {
       emit(state.copyWith(status: TodoListStatus.failure));
     }
-
-    emit(state.copyWith(
-      todos: [...state.todos, event.item],
-      status: TodoListStatus.success,
-    ));
   }
 
   Future<void> _onItemRemoved(
@@ -57,14 +58,14 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
   ) async {
     try {
       await _repository.removeTodoItem(event.item);
+
+      emit(state.copyWith(
+        todos: state.todos..remove(event.item),
+        status: TodoListStatus.success,
+      ));
     } catch (e) {
       emit(state.copyWith(status: TodoListStatus.failure));
     }
-
-    emit(state.copyWith(
-      todos: state.todos..remove(event.item),
-      status: TodoListStatus.success,
-    ));
   }
 
   Future<void> _onItemToggled(
@@ -74,15 +75,19 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
     final index = state.todos.indexWhere((item) => item.id == event.item.id);
     final updatedItem = event.item.copyWith(isCompleted: event.isCompleted);
 
+    if (index == -1) {
+      return;
+    }
+
     try {
       await _repository.updateTodoItem(updatedItem);
+
+      emit(state.copyWith(
+        todos: state.todos..[index] = updatedItem,
+        status: TodoListStatus.success,
+      ));
     } catch (e) {
       emit(state.copyWith(status: TodoListStatus.failure));
     }
-
-    emit(state.copyWith(
-      todos: state.todos..[index] = updatedItem,
-      status: TodoListStatus.success,
-    ));
   }
 }

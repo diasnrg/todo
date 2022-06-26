@@ -14,7 +14,7 @@ extension TodoListStatusX on TodoListStatus {
   bool get isFailure => this == TodoListStatus.failure;
 }
 
-class TodoListState {
+class TodoListState extends Equatable {
   const TodoListState({
     this.todos = const [],
     this.status = TodoListStatus.initial,
@@ -32,4 +32,7 @@ class TodoListState {
       status: status ?? this.status,
     );
   }
+
+  @override
+  List<Object> get props => [todos, status];
 }

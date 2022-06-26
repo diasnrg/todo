@@ -1,17 +1,18 @@
+import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'todo.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class Todo {
+class Todo extends Equatable {
   Todo({
     String? id,
     required this.title,
     this.isCompleted = false,
   }) : id = id ?? const Uuid().v1();
 
-  final String? id;
+  final String id;
   final String title;
   final bool isCompleted;
 
@@ -29,4 +30,7 @@ class Todo {
   }
 
   Map<String, dynamic> toJson() => _$TodoToJson(this);
+
+  @override
+  List<Object> get props => [id, title, isCompleted];
 }
