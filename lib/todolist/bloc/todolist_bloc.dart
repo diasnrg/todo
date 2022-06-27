@@ -7,10 +7,10 @@ part 'todolist_event.dart';
 part 'todolist_state.dart';
 
 class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
-  TodoListBloc({TodoRepository? repository})
-      : _repository = repository ?? TodoRepository(),
+  TodoListBloc({required TodoRepository repository})
+      : _repository = repository,
         super(const TodoListState()) {
-    on<TodoListInitialized>(_onTodoListInitialized);
+    on<TodoListInitializationRequested>(_onInitializationRequested);
     on<TodoListItemCreated>(_onItemCreated);
     on<TodoListItemRemoved>(_onItemRemoved);
     on<TodoListItemToggled>(_onItemToggled);
@@ -18,54 +18,37 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
 
   final TodoRepository _repository;
 
-  Future<void> _onTodoListInitialized(
-    TodoListInitialized event,
+  Future<void> _onInitializationRequested(
+    TodoListInitializationRequested event,
     Emitter<TodoListState> emit,
   ) async {
     emit(state.copyWith(status: TodoListStatus.loading));
 
-    List<Todo> todos = [];
-    try {
-      todos = await _repository.getTodoList();
-    } catch (e) {
-      emit(state.copyWith(status: TodoListStatus.failure));
-    }
-    emit(state.copyWith(
-      status: TodoListStatus.success,
-      todos: todos,
-    ));
+    // subscribing to the stream from repository to update the state for each update
+    await emit.forEach<List<Todo>>(
+      _repository.todolistStream,
+      onData: (List<Todo> todolist) => state.copyWith(
+        todos: todolist,
+        status: TodoListStatus.success,
+      ),
+      onError: (error, stackTrace) => state.copyWith(
+        status: TodoListStatus.failure,
+      ),
+    );
   }
 
   Future<void> _onItemCreated(
     TodoListItemCreated event,
     Emitter<TodoListState> emit,
   ) async {
-    try {
-      await _repository.createTodoItem(event.item);
-
-      emit(state.copyWith(
-        todos: [...state.todos, event.item],
-        status: TodoListStatus.success,
-      ));
-    } catch (e) {
-      emit(state.copyWith(status: TodoListStatus.failure));
-    }
+    await _repository.createTodoItem(event.item);
   }
 
   Future<void> _onItemRemoved(
     TodoListItemRemoved event,
     Emitter<TodoListState> emit,
   ) async {
-    try {
-      await _repository.removeTodoItem(event.item);
-
-      emit(state.copyWith(
-        todos: state.todos..remove(event.item),
-        status: TodoListStatus.success,
-      ));
-    } catch (e) {
-      emit(state.copyWith(status: TodoListStatus.failure));
-    }
+    await _repository.removeTodoItem(event.item);
   }
 
   Future<void> _onItemToggled(
@@ -79,15 +62,6 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
       return;
     }
 
-    try {
-      await _repository.updateTodoItem(updatedItem);
-
-      emit(state.copyWith(
-        todos: state.todos..[index] = updatedItem,
-        status: TodoListStatus.success,
-      ));
-    } catch (e) {
-      emit(state.copyWith(status: TodoListStatus.failure));
-    }
+    return await _repository.updateTodoItem(updatedItem);
   }
 }

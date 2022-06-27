@@ -2,7 +2,7 @@ part of 'todolist_bloc.dart';
 
 abstract class TodoListEvent {}
 
-class TodoListInitialized extends TodoListEvent {}
+class TodoListInitializationRequested extends TodoListEvent {}
 
 class TodoListItemCreated extends TodoListEvent {
   TodoListItemCreated(this.item);
