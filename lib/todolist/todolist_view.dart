@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:todo/models/models.dart';
 import 'package:todo/repository.dart';
+import 'package:todo/todolist/bloc/todolist_bloc.dart';
 import 'package:todo/todolist/create_item_view.dart';
-import 'bloc/todolist_bloc.dart';
 
 class TodoListPage extends StatelessWidget {
   const TodoListPage({
@@ -31,8 +32,6 @@ class TodoListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TodoListBloc, TodoListState>(
-      // buildWhen: ((previous, current) =>
-      //     previous.todos != current.todos || previous.status != current.status),
       builder: (context, state) {
         if (state.status.isFailure) {
           return const SliverToBoxAdapter(child: Text('error occured'));
@@ -43,8 +42,14 @@ class TodoListView extends StatelessWidget {
 
         final todos = state.todos;
         if (todos.isEmpty) {
-          return const SliverToBoxAdapter(
-              child: Center(child: Text('empty list')));
+          return SliverToBoxAdapter(
+            child: Column(
+              children: const [
+                SizedBox(height: 64),
+                Text('Todo list is empty =)'),
+              ],
+            ),
+          );
         }
 
         return SliverList(
@@ -58,30 +63,38 @@ class TodoListView extends StatelessWidget {
 }
 
 class TodoItemView extends StatelessWidget {
-  const TodoItemView(
-    this.item, {
-    super.key,
-  });
+  const TodoItemView(this.item, {super.key});
 
   final Todo item;
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.bodyMedium;
+
     return ListTile(
       leading: Checkbox(
-          value: item.isCompleted,
-          onChanged: (value) {
-            context.read<TodoListBloc>().add(TodoListItemToggled(item, value!));
-          }),
-      title: Text(item.title,
-          style: item.isCompleted
-              ? const TextStyle(decoration: TextDecoration.lineThrough)
-              : null),
+        value: item.isCompleted,
+        onChanged: (value) {
+          context.read<TodoListBloc>().add(
+                TodoListItemToggled(item, value!),
+              );
+        },
+      ),
+      title: Text(
+        item.title,
+        style: textStyle?.copyWith(
+          decoration: item.isCompleted ? TextDecoration.lineThrough : null,
+        ),
+      ),
       trailing: InkWell(
-          onTap: () {
-            context.read<TodoListBloc>().add(TodoListItemRemoved(item));
-          },
-          child: const Icon(Icons.delete)),
+        onTap: () =>
+            context.read<TodoListBloc>().add(TodoListItemRemoved(item)),
+        child: const Icon(
+          Icons.delete_outline,
+          color: Colors.red,
+          size: 22,
+        ),
+      ),
     );
   }
 }
