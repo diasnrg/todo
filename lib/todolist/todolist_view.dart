@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -37,7 +35,7 @@ class TodoListView extends StatelessWidget {
           return Column(
             children: const [
               SizedBox(height: 64),
-              Text('Todo list is empty =)'),
+              Center(child: Text('Todo list is empty =)')),
             ],
           );
         }
@@ -81,10 +79,13 @@ class TodoListView extends StatelessWidget {
               ),
             if (uncompleted.isEmpty)
               SliverToBoxAdapter(
-                  child: Column(children: [
-                SizedBox(height: MediaQuery.of(context).size.height / 2),
-                const Text('All tasks completed'),
-              ])),
+                child: Column(
+                  children: const [
+                    SizedBox(height: 128),
+                    Text('All tasks completed'),
+                  ],
+                ),
+              ),
           ],
         );
       },
