@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class TodoThemeData {
   static ThemeData get lightTheme {
@@ -20,6 +19,6 @@ class TodoThemeData {
   }
 
   static TextStyle get todoItemTextStyle {
-    return GoogleFonts.lato(fontSize: 18);
+    return const TextStyle(fontFamily: 'Raleway', fontSize: 20);
   }
 }

@@ -40,7 +40,6 @@ dependencies:
   json_annotation: ^4.5.0
   equatable: ^2.0.3
   rxdart: ^0.27.4
-  google_fonts: ^3.0.1
 
 dev_dependencies:
   flutter_test:

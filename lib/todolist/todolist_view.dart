@@ -1,27 +1,19 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:todo/models/models.dart';
-import 'package:todo/repository.dart';
 import 'package:todo/todolist/bloc/todolist_bloc.dart';
-import 'package:todo/todolist/create_item_view.dart';
 
 class TodoListPage extends StatelessWidget {
-  const TodoListPage({
-    super.key,
-  });
+  const TodoListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => TodoListBloc(repository: context.read<TodoRepository>())
-        ..add(TodoListInitializationRequested()),
-      child: const CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(child: CreateTodoItemView()),
-          TodoListView(),
-        ],
-      ),
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 16),
+      child: TodoListView(),
     );
   }
 }
@@ -34,28 +26,66 @@ class TodoListView extends StatelessWidget {
     return BlocBuilder<TodoListBloc, TodoListState>(
       builder: (context, state) {
         if (state.status.isFailure) {
-          return const SliverToBoxAdapter(child: Text('error occured'));
+          return const Text('error occured');
         }
         if (state.status.isLoading) {
-          return const SliverToBoxAdapter(child: CircularProgressIndicator());
+          return const CircularProgressIndicator();
         }
 
-        final todos = state.todos;
-        if (todos.isEmpty) {
-          return SliverToBoxAdapter(
-            child: Column(
-              children: const [
-                SizedBox(height: 64),
-                Text('Todo list is empty =)'),
-              ],
-            ),
+        final todolist = state.todolist;
+        if (todolist.isEmpty) {
+          return Column(
+            children: const [
+              SizedBox(height: 64),
+              Text('Todo list is empty =)'),
+            ],
           );
         }
 
-        return SliverList(
-          delegate: SliverChildListDelegate(
-            todos.map((e) => TodoItemView(e)).toList(),
-          ),
+        final completed = todolist.where((e) => e.isCompleted).toList();
+        final uncompleted = todolist.where((e) => !e.isCompleted).toList();
+
+        return CustomScrollView(
+          slivers: [
+            SliverList(
+              delegate: SliverChildListDelegate(
+                  uncompleted.map((e) => TodoItemView(e)).toList()),
+            ),
+            if (uncompleted.isNotEmpty)
+              const SliverToBoxAdapter(
+                child: Divider(
+                  height: 1,
+                  thickness: 1,
+                ),
+              ),
+            SliverToBoxAdapter(
+              child: ListTile(
+                title: Text(
+                  'Completed (${completed.length})',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onTap: () => context
+                    .read<TodoListBloc>()
+                    .add(TodoListCompletedItemsVisibilityChanged()),
+                trailing: Icon(
+                  state.isHiddenCompletedItems
+                      ? Icons.keyboard_arrow_down
+                      : Icons.keyboard_arrow_up,
+                ),
+              ),
+            ),
+            if (state.isHiddenCompletedItems == false)
+              SliverList(
+                delegate: SliverChildListDelegate(
+                    completed.map((e) => TodoItemView(e)).toList()),
+              ),
+            if (uncompleted.isEmpty)
+              SliverToBoxAdapter(
+                  child: Column(children: [
+                SizedBox(height: MediaQuery.of(context).size.height / 2),
+                const Text('All tasks completed'),
+              ])),
+          ],
         );
       },
     );
@@ -74,10 +104,8 @@ class TodoItemView extends StatelessWidget {
     return ListTile(
       leading: Checkbox(
         value: item.isCompleted,
-        onChanged: (value) {
-          context.read<TodoListBloc>().add(
-                TodoListItemToggled(item, value!),
-              );
+        onChanged: (_) {
+          context.read<TodoListBloc>().add(TodoListItemToggled(item));
         },
       ),
       title: Text(

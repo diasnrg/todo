@@ -28,8 +28,8 @@ void main() {
       build: () => TodoListBloc(repository: repository),
       act: (bloc) => bloc.add(TodoListInitializationRequested()),
       expect: () => <TodoListState>[
-        const TodoListState(todos: [], status: TodoListStatus.loading),
-        TodoListState(todos: [item], status: TodoListStatus.success),
+        const TodoListState(todolist: [], status: TodoListStatus.loading),
+        TodoListState(todolist: [item], status: TodoListStatus.success),
       ],
     );
 
@@ -55,7 +55,7 @@ void main() {
         seed: () => const TodoListState(status: TodoListStatus.loading),
         act: (bloc) => bloc.add(TodoListItemCreated(item2)),
         expect: () => <TodoListState>[
-          TodoListState(todos: [item2], status: TodoListStatus.success),
+          TodoListState(todolist: [item2], status: TodoListStatus.success),
         ],
       );
     });
@@ -66,12 +66,12 @@ void main() {
         ..add(TodoListInitializationRequested()),
       seed: () => const TodoListState(status: TodoListStatus.loading),
       act: (bloc) {
-        bloc.add(TodoListItemToggled(item, true));
+        bloc.add(TodoListItemToggled(item));
       },
       expect: () => [
-        TodoListState(todos: [item], status: TodoListStatus.success),
+        TodoListState(todolist: [item], status: TodoListStatus.success),
         TodoListState(
-            todos: [item.copyWith(isCompleted: true)],
+            todolist: [item.copyWith(isCompleted: true)],
             status: TodoListStatus.success),
       ],
     );

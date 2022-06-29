@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo/models/models.dart';
 import 'package:todo/repository.dart';
@@ -14,6 +15,8 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
     on<TodoListItemCreated>(_onItemCreated);
     on<TodoListItemRemoved>(_onItemRemoved);
     on<TodoListItemToggled>(_onItemToggled);
+    on<TodoListCompletedItemsVisibilityChanged>(
+        _onCompletedItemsVisibilityChanged);
   }
 
   final TodoRepository _repository;
@@ -27,10 +30,14 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
     // subscribing to the stream from repository to update the state for each update
     await emit.forEach<List<Todo>>(
       _repository.todolistStream,
-      onData: (List<Todo> todolist) => state.copyWith(
-        todos: todolist,
-        status: TodoListStatus.success,
-      ),
+      onData: (List<Todo> todolist) {
+        todolist.sort((t1, t2) => t2.lastUpdated.compareTo(t1.lastUpdated));
+
+        return state.copyWith(
+          todolist: todolist,
+          status: TodoListStatus.success,
+        );
+      },
       onError: (error, stackTrace) => state.copyWith(
         status: TodoListStatus.failure,
       ),
@@ -55,13 +62,20 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
     TodoListItemToggled event,
     Emitter<TodoListState> emit,
   ) async {
-    final index = state.todos.indexWhere((item) => item.id == event.item.id);
-    final updatedItem = event.item.copyWith(isCompleted: event.isCompleted);
-
+    final index = state.todolist.indexWhere((item) => item.id == event.item.id);
     if (index == -1) {
       return;
     }
 
+    final updatedItem =
+        event.item.copyWith(isCompleted: !state.todolist[index].isCompleted);
     return await _repository.updateTodoItem(updatedItem);
+  }
+
+  void _onCompletedItemsVisibilityChanged(
+    TodoListCompletedItemsVisibilityChanged event,
+    Emitter<TodoListState> emit,
+  ) {
+    emit(state.copyWith(isHiddenCompletedItems: !state.isHiddenCompletedItems));
   }
 }

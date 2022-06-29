@@ -16,23 +16,28 @@ extension TodoListStatusX on TodoListStatus {
 
 class TodoListState extends Equatable {
   const TodoListState({
-    this.todos = const [],
+    this.todolist = const [],
     this.status = TodoListStatus.initial,
+    this.isHiddenCompletedItems = true,
   });
 
-  final List<Todo> todos;
+  final List<Todo> todolist;
   final TodoListStatus status;
+  final bool isHiddenCompletedItems;
 
   TodoListState copyWith({
-    List<Todo>? todos,
+    List<Todo>? todolist,
     TodoListStatus? status,
+    bool? isHiddenCompletedItems,
   }) {
     return TodoListState(
-      todos: todos ?? this.todos,
+      todolist: todolist ?? this.todolist,
       status: status ?? this.status,
+      isHiddenCompletedItems:
+          isHiddenCompletedItems ?? this.isHiddenCompletedItems,
     );
   }
 
   @override
-  List<Object> get props => [todos, status];
+  List<Object> get props => [todolist, status, isHiddenCompletedItems];
 }

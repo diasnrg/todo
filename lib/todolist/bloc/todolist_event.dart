@@ -19,9 +19,9 @@ class TodoListItemRemoved extends TodoListEvent {
 class TodoListItemToggled extends TodoListEvent {
   TodoListItemToggled(
     this.item,
-    this.isCompleted,
   );
 
   final Todo item;
-  final bool isCompleted;
 }
+
+class TodoListCompletedItemsVisibilityChanged extends TodoListEvent {}

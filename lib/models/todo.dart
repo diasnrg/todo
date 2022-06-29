@@ -10,11 +10,14 @@ class Todo extends Equatable {
     String? id,
     required this.title,
     this.isCompleted = false,
-  }) : id = id ?? const Uuid().v1();
+    DateTime? lastUpdated,
+  })  : id = id ?? const Uuid().v1(),
+        lastUpdated = DateTime.now();
 
   final String id;
   final String title;
   final bool isCompleted;
+  final DateTime lastUpdated;
 
   factory Todo.fromJson(Map<String, dynamic> json) => _$TodoFromJson(json);
 
@@ -26,11 +29,12 @@ class Todo extends Equatable {
       id: id,
       title: title ?? this.title,
       isCompleted: isCompleted ?? this.isCompleted,
+      lastUpdated: DateTime.now(),
     );
   }
 
   Map<String, dynamic> toJson() => _$TodoToJson(this);
 
   @override
-  List<Object> get props => [id, title, isCompleted];
+  List<Object> get props => [id, title, isCompleted, lastUpdated];
 }
